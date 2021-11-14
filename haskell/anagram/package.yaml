@@ -8,6 +8,8 @@ library:
   exposed-modules: Anagram
   source-dirs: src
   ghc-options: -Wall
+  dependencies:
+    - containers
 
 tests:
   test:
