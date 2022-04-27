@@ -45,5 +45,4 @@ reverseLinkedList :: LinkedList a -> LinkedList a
 reverseLinkedList = foldl' (flip Cons) Nil
 
 toList :: LinkedList a -> [a]
-toList Nil = []
-toList (Cons hd rest) = hd : toList rest
+toList = foldr (:) []
