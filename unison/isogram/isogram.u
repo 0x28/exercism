@@ -1,0 +1,4 @@
+isogram.isIsogram : Text -> Boolean
+isogram.isIsogram text =
+  let lettersOnly = text |> toCharList |> filter isLetter |> map toLower
+      size lettersOnly == size (Set.fromList lettersOnly)
