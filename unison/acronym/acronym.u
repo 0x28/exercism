@@ -1,0 +1,6 @@
+acronym.abbreviate : Text -> Text
+acronym.abbreviate test =
+    let token = words (map (c -> if c == ?- then ?  else c) test)
+        firstLetter = word -> head (filter isLetter (toCharList word))
+        initials = filterMap firstLetter token
+        fromCharList (map toUpper initials)
