@@ -1,0 +1,5 @@
+raindrops.convert : Nat -> Text
+raindrops.convert n =
+  [(3, "Pling"), (5, "Plang"), (7, "Plong")]
+    |> filterMap (cases (m, sound) -> if mod n m == 0 then Some sound else None)
+    |> (xs -> if isEmpty xs then Nat.toText n else join "" xs)
