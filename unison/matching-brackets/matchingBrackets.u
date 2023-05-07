@@ -1,0 +1,41 @@
+structural ability matchingBrackets.Stack a where
+  push : a -> ()
+  pop : ()
+  peek : Optional a
+  isEmpty : Boolean
+
+matchingBrackets.Stack.run : '{Stack a} r -> r
+matchingBrackets.Stack.run stackFunc =
+  impl : [a] -> abilities.Request {Stack a} r -> r
+  impl stack = cases
+    {pure} -> pure
+    {Stack.push value -> resume} ->
+      handle !resume with impl (cons value stack)
+    {Stack.pop -> resume} ->
+      handle !resume with impl (getOrBug "stack underflow" (tail stack))
+    {Stack.isEmpty -> resume} ->
+      handle resume (List.isEmpty stack) with impl stack
+    {Stack.peek -> resume} ->
+      handle resume (List.head stack) with impl stack
+  handle !stackFunc with impl List.empty
+
+matchingBrackets.checkBalance : [Char] -> {Stack Char} Boolean
+matchingBrackets.checkBalance charList =
+  match charList with
+    c +: rest
+      | List.contains c [?{, ?(, ?[] -> push (closing c); checkBalance rest
+      | List.contains c [?}, ?), ?]] ->
+        if peek === Some c then pop; checkBalance rest else false
+    c +: rest -> checkBalance rest
+    [] -> Stack.isEmpty
+
+closing : Char -> Char
+closing = cases
+  ?( -> ?)
+  ?[ -> ?]
+  ?{ -> ?}
+  _ -> ?_
+
+matchingBrackets.isPaired : Text -> Boolean
+matchingBrackets.isPaired input =
+  Stack.run '(input |> toCharList |> checkBalance)
