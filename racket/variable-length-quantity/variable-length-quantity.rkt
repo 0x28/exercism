@@ -1,12 +1,14 @@
-#lang racket
+#lang typed/racket
 
 (provide encode decode)
 
+(: encode (-> Integer * (Listof Integer)))
 (define (encode . nums)
-  (flatten
+  (append*
    (map (curry encode-number '())
         nums)))
 
+(: encode-number (-> (Listof Integer) Integer (Listof Integer)))
 (define (encode-number encoded num)
   (let* ((seven-bit (bitwise-and num #x7f))
          (byte (if (null? encoded) seven-bit (bitwise-ior #x80 seven-bit)))
@@ -17,6 +19,7 @@
         (encode-number (cons byte encoded)
                        rest))))
 
+(: decode (-> Integer * (Listof Integer) ))
 (define (decode . nums)
   (match (decode-number 0 nums)
     [(cons remaining num)
@@ -24,6 +27,9 @@
          (list num)
          (cons num (apply decode remaining)))]))
 
+(: decode-number (-> Integer
+                     (Listof Integer)
+                     (Pairof (Listof Integer) Integer)))
 (define (decode-number num encoded)
   (if (null? encoded)
       (cons '() num)
