@@ -3,6 +3,7 @@ module Sgf (parseSgf) where
 import Data.Char (isSpace)
 import Data.Map (Map)
 import qualified Data.Map as M
+import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Tree (Tree (Node))
@@ -15,13 +16,22 @@ type SgfNode = Map Text [Text]
 
 type SgfTree = Tree SgfNode
 
+normalize :: Char -> Maybe Char
+normalize '\n' = Just '\n'
+normalize c
+  | isSpace c = Just ' '
+  | otherwise = Just c
+
+escaped :: Char -> Maybe Char
+escaped '\t' = Just ' '
+escaped '\n' = Nothing
+escaped c = Just c
+
 value :: Parser Text
 value = do
   v <-
-    many1 $
-      char '\\' *> anyChar
-        <|> (noneOf "[]" >>= (\c -> return $ if isSpace c then ' ' else c))
-  return $ T.pack $ filter (/= '\n') v
+    many1 $ char '\\' *> fmap escaped anyChar <|> fmap normalize (noneOf "]")
+  return $ T.pack $ catMaybes v
 
 property :: Parser (Text, [Text])
 property = do
